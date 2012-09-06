@@ -1,7 +1,9 @@
+word-bloom
+   by Judson Lester
+
+based on:
 whatlanguage
     by Peter Cooper
-    http://www.petercooper.co.uk/
-    http://www.rubyinside.com/
 
 == DESCRIPTION:
   
@@ -18,7 +20,7 @@ Works with Dutch, English, Farsi, French, German, Swedish, Portuguese, Russian a
 == SYNOPSIS:
 
   Full Example
-    require 'whatlanguage'
+    require 'word-bloom'
     
     texts = []
     texts << %q{Deux autres personnes ont été arrêtées durant la nuit}
@@ -31,13 +33,13 @@ Works with Dutch, English, Farsi, French, German, Swedish, Portuguese, Russian a
     texts.each { |text| puts "#{text[0..18]}... is in #{text.language.to_s.capitalize}" }
 
   Initialize WhatLanguage with all filters
-    wl = WhatLanguage.new(:all)
+    wb = WordBloom.new(:all)
 
   Return language with best score
-    wl.language(text)
+    wb.language(text)
 
   Return hash with scores for all relevant languages
-    wl.process_text(text)
+    wb.process_text(text)
 
   Convenience method on String
     "This is a test".language   # => "English"
@@ -49,18 +51,19 @@ Works with Dutch, English, Farsi, French, German, Swedish, Portuguese, Russian a
 == INSTALLATION:
 
   gem sources -a http://gems.github.com
-  sudo gem install peterc-whatlanguage
+  sudo gem install word-bloom
 
   To test, go into irb, then:
 
-  require 'whatlanguage'
+  require 'word-bloom'
   "Je suis un homme".language
 
 == LICENSE:
 
 (The MIT License)
 
-Copyright (c) 2007-2008 Peter Cooper
+Copyright (c) 2012 Judson Lester
+Original Copyright (c) 2007-2008 Peter Cooper
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
