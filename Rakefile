@@ -37,6 +37,62 @@ end]) do |task|
   File.open(task.name, 'wb') { |f| f.write filter.dump }
 end
 
+namespace :corpus do
+  Dir.entries('spec_help/corpus').each do |language|
+    next if /[.]+/ =~ language
+    namespace language do
+      desc "Pull in a webpage for corpus testing"
+      task :collect, [:source] do |task, args|
+        raise "Need a url" unless args[:source]
+
+        require 'zlib'
+        require 'excon'
+        require 'nokogiri'
+
+        uri = URI(args[:source])
+        body = nil
+
+        filename = [uri.host, uri.path.gsub(%r{/}, "-"), (uri.query||"").gsub("&", "-")].join("-")
+        target_path = File.join('spec_help/corpus', language, filename)
+        cookies = nil
+
+        response = nil
+        5.times do
+          response = Excon.get(uri.to_s, :headers => {"Host" => uri.host, "Cookie" => cookies})
+          case response.status
+          when (200..299)
+            break
+          when (300..399)
+            uri = URI(response.get_header('Location'))
+          else
+            raise "HTTP response: #{response}"
+          end
+        end
+
+        case response.get_header('Content-Encoding')
+        when "gzip"
+          body = Zlib::GzipReader.new(StringIO.new(response.body)).read
+        when "deflate"
+          body = Zlib::Inflate.inflate(response.body)
+        else
+          body = response.body
+        end
+
+        doc = Nokogiri::HTML(body)
+        doc.search('//script').each{|tag| tag.unlink}
+        doc.search('//style').each{|tag| tag.unlink}
+
+        content = doc.content
+
+        File.open(target_path, 'w') do |file|
+          file.write content
+        end
+        puts "Wrote #{content.length} bytes to #{target_path}"
+      end
+    end
+  end
+end
+
 namespace :filters do
   desc "Use this to build new filters (for other languages, ideally) from /usr/share/dict/words style dictionaries.."
   task :ingest_dictionary, [:source, :target] do |task, args|
