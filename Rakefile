@@ -29,12 +29,28 @@ end
 task :deploy => [:release, :publish_docs]
 
 rule(%r{^lang/.*\.lang} => [ proc do |path|
-  path.sub(%r{^lang/(.*).lang$}, "wordlists/\1")
+  match = %r{^lang/(.*).lang$}.match(path)
+  "wordlists/#{match[1]}".tap{|dp| p dp}
 end]) do |task|
-  require 'lib/word-bloom'
-  puts "Doing #{lang}"
-  filter = WhatBloom.filter_from_dictionary(task.source)
+  require 'word-bloom'
+  require 'word-bloom/filter-builder'
+  puts "Doing #{task.source} -> #{task.name}"
+  builder = WordBloom::FilterBuilder.new(task.source)
+  filter = builder.filter_from_dictionary
   File.open(task.name, 'wb') { |f| f.write filter.dump }
+end
+
+namespace :filters do
+  desc "Use this to build new filters (for other languages, ideally) from /usr/share/dict/words style dictionaries.."
+  task :ingest_dictionary, [:source, :target] do |task, args|
+    require 'lib/word-bloom'
+    builder = WordBloom::FilterBuilder.new(args[:source])
+    filter = builder.filter_from_dictionary
+    File.open(args[:target], 'wb') { |f| f.write filter.dump }
+  end
+
+  desc "Build dictionaries for wordlists"
+  task :build => %w{lang/pinyin.lang lang/dutch.lang lang/french.lang lang/swedish.lang lang/russian.lang lang/german.lang lang/farsi.lang lang/italian.lang lang/portuguese.lang lang/english.lang lang/spanish.lang}
 end
 
 namespace :corpus do
@@ -91,16 +107,4 @@ namespace :corpus do
       end
     end
   end
-end
-
-namespace :filters do
-  desc "Use this to build new filters (for other languages, ideally) from /usr/share/dict/words style dictionaries.."
-  task :ingest_dictionary, [:source, :target] do |task, args|
-    require 'lib/word-bloom'
-    filter = WordBloom.filter_from_dictionary(args[:source])
-    File.open(args[:target], 'wb') { |f| f.write filter.dump }
-  end
-
-  desc "Build dictionaries for wordlists"
-  task :build => %w{lang/pinyin.lang lang/dutch.lang lang/french.lang lang/swedish.lang lang/russian.lang lang/german.lang lang/farsi.lang lang/italian.lang lang/portuguese.lang lang/english.lang lang/spanish.lang}
 end
