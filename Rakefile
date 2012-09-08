@@ -30,7 +30,7 @@ task :deploy => [:release, :publish_docs]
 
 rule(%r{^lang/.*\.lang} => [ proc do |path|
   match = %r{^lang/(.*).lang$}.match(path)
-  "wordlists/#{match[1]}".tap{|dp| p dp}
+  "wordlists/#{match[1]}"
 end]) do |task|
   require 'word-bloom'
   require 'word-bloom/filter-builder'
