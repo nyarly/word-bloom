@@ -35,6 +35,23 @@ class BitField
     inject("") { |a, b| a + b.to_s }
   end
 
+  # Returns the bitwise intersection with another BitField - pads smaller with
+  # 0s
+  def &(other)
+    if self.size < other.size
+      return other & self
+    end
+
+    skip =  self.size - other.size
+    result = BitField.new(self.size)
+    prefix = [0] * skip
+    rest = (self.field[skip..-1]).zip(other.field).map do |left, right|
+      left & right
+    end
+    result.field = prefix + rest
+    return result
+  end
+
   # Returns the total number of bits that are set
   # (The technique used here is about 6 times faster than using each or inject direct on the bitfield)
   def total_set

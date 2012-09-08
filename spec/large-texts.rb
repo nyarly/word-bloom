@@ -19,7 +19,6 @@ describe "Texts loaded from fixtures" do
         end
 
         it "should match as #{language}" do
-          p scorer.process_text(full_text)
           scorer.language(full_text).should == language.to_sym
         end
       end

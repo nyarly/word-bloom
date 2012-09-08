@@ -14,6 +14,10 @@ class WordBloom
         end
     end
 
+    def self.filter_for(language)
+      @@filters[language]
+    end
+
     def self.all_languages
       @@all_languages ||= Dir.entries(LANGUAGE_DIR_PATH).grep(/\.lang$/).map do |filename|
         filename.sub(/\.lang$/,'').to_sym
@@ -35,6 +39,7 @@ class WordBloom
     def initialize()
       @languages = {}
       @language_weights = Hash.new(1.0)
+      @language_weights[:russian] = 0.8
     end
 
     def add_language(name, weight = nil)
@@ -53,13 +58,19 @@ class WordBloom
       top_results = results.values.sort
       best = top_results[-1]
       rest = top_results[0..-2].inject{|number, sum| sum + number}
-      p({best: best, rest: rest})
 
       return OPTIMISM * best - rest
     end
 
     OPTIMISM = 3.5
     MIN_CONFIDENCE = 15
+
+    def apply_weights(results)
+      results.keys.each do |lang|
+        results[lang] *= @language_weights[lang]
+      end
+      results
+    end
 
     # Very inefficient method for now.. but still beats the non-Bloom
     # alternatives.
@@ -72,7 +83,6 @@ class WordBloom
         next if /^\d*$/ =~ word
         @languages.keys.each do |lang|
           if @@filters[lang].includes?(word)
-            p word if lang == :spanish
             results[lang] += 1
           end
         end
@@ -85,7 +95,7 @@ class WordBloom
         word_count += 1
         #break if word_count > 100
       end
-      results
+      apply_weights(results)
     rescue => ex
       p ex, ex.backtrace
       nil

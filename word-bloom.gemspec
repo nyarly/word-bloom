@@ -21,10 +21,23 @@ Gem::Specification.new do |spec|
   spec.files		= %w[
     lib/bloominsimple.rb
     lib/word-bloom.rb
+    lib/word-bloom/filter-builder.rb
+    lib/word-bloom/scorer.rb
+    lib/word-bloom/quality.rb
     lib/bitfield.rb
+    lang/pinyin.lang
+    lang/dutch.lang
+    lang/french.lang
+    lang/swedish.lang
+    lang/russian.lang
+    lang/german.lang
+    lang/farsi.lang
+    lang/italian.lang
+    lang/portuguese.lang
+    lang/english.lang
+    lang/spanish.lang
   ]
 
-  spec.test_file        = "spec_help/gem_test_suite.rb"
   spec.licenses = ["MIT"]
   spec.require_paths = %w[lib/]
   spec.rubygems_version = "1.3.5"

@@ -30,23 +30,17 @@ class BloominSimple
   # Allows comparison between two filters. Returns number of same bits.
   def &(other)
     raise "Wrong sizes" if self.bitfield.size != other.bitfield.size
-    same = 0
-    #self.bitfield.size.times do |pos|
-    #  same += 1 if self.bitfield[pos] & other.bitfield[pos] == 1
-    #end
-    self.bitfield.total_set.to_s + "--" + other.bitfield.total_set.to_s
+    return (self.bitfield & other.bitfield).total_set
   end
 
   # Dumps the bitfield for a bloom filter for storage
   def dump
     [@size, *@bitfield.field].pack("I*")
-    #Marshal.dump([@size, @bitfield])
   end
 
   # Creates a new bloom filter object from a stored dump (hasher has to be resent though for additions)
   def self.from_dump(data, &block)
     data = data.unpack("I*")
-    #data = Marshal.load(data)
     temp = new(data[0], &block)
     temp.bitfield.field = data[1..-1]
     temp

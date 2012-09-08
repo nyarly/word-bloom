@@ -43,10 +43,17 @@ end
 namespace :filters do
   desc "Use this to build new filters (for other languages, ideally) from /usr/share/dict/words style dictionaries.."
   task :ingest_dictionary, [:source, :target] do |task, args|
-    require 'lib/word-bloom'
+    require 'word-bloom'
     builder = WordBloom::FilterBuilder.new(args[:source])
     filter = builder.filter_from_dictionary
     File.open(args[:target], 'wb') { |f| f.write filter.dump }
+  end
+
+  desc "Quick check that the Bloom filters are at least fairly different"
+  task :inspect do
+    require 'word-bloom/quality'
+
+    puts WordBloom::Quality.build_all
   end
 
   desc "Build dictionaries for wordlists"
